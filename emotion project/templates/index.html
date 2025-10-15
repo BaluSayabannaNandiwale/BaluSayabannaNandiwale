@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodify - Intelligent Mood Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-brain"></i> Moodify</h1>
+                <p>Intelligent Mood Detection System</p>
+                {% if session.user_id %}
+                    <p style="color: #28a745; font-weight: 500;">
+                        <i class="fas fa-user"></i> Welcome back, {{ session.username }}!
+                    </p>
+                {% endif %}
+                <nav class="nav">
+                    <a href="/" class="nav-item">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                    <a href="#face-section" class="nav-item active" data-section="face">
+                        <i class="fas fa-smile"></i> Face
+                    </a>
+                    <a href="#speech-section" class="nav-item" data-section="speech">
+                        <i class="fas fa-microphone"></i> Speech
+                    </a>
+                    <a href="#text-section" class="nav-item" data-section="text">
+                        <i class="fas fa-keyboard"></i> Text
+                    </a>
+                    <a href="/analytics" class="nav-item" target="_blank">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </a>
+                    <a href="/chat" class="nav-item" target="_blank">
+                        <i class="fas fa-robot"></i> AI Chat
+                    </a>
+                    {% if session.user_id %}
+                        <a href="/logout" class="nav-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Face Emotion Detection Section -->
+            <section id="face-section" class="detection-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-camera"></i> Face Emotion Detection</h2>
+                    <p>Upload an image or use your webcam to detect emotions from facial expressions</p>
+                </div>
+                
+                <div class="input-area">
+                    <div class="upload-zone" id="face-upload-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop an image or <span class="browse-link">browse</span></p>
+                        <input type="file" id="face-file-input" accept="image/*" hidden>
+                    </div>
+                    
+                    <div class="divider">OR</div>
+                    
+                    <div class="webcam-section">
+                        <video id="webcam" autoplay muted></video>
+                        <canvas id="webcam-canvas" hidden></canvas>
+                        <div class="webcam-controls">
+                            <button id="start-webcam" class="btn btn-primary">
+                                <i class="fas fa-video"></i> Start Webcam
+                            </button>
+                            <button id="capture-photo" class="btn btn-secondary" disabled>
+                                <i class="fas fa-camera"></i> Capture Photo
+                            </button>
+                            <button id="stop-webcam" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> Stop Webcam
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="preview-area" id="face-preview" hidden>
+                    <img id="face-preview-img" alt="Preview">
+                    <button id="analyze-face" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Analyze Emotion
+                    </button>
+                    <!-- Debug button -->
+                    <button id="test-demo" class="btn btn-secondary" style="margin-left: 10px;" onclick="testDemo()">
+                        <i class="fas fa-play"></i> Test Demo
+                    </button>
+                </div>
+            </section>
+
+            <!-- Speech Emotion Detection Section -->
+            <section id="speech-section" class="detection-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-microphone"></i> Speech Emotion Detection</h2>
+                    <p>Upload an audio file or record your voice to detect emotions from speech</p>
+                </div>
+                
+                <div class="input-area">
+                    <div class="upload-zone" id="speech-upload-zone">
+                        <i class="fas fa-music"></i>
+                        <p>Drag & drop an audio file or <span class="browse-link">browse</span></p>
+                        <input type="file" id="speech-file-input" accept="audio/*" hidden>
+                    </div>
+                    
+                    <div class="divider">OR</div>
+                    
+                    <div class="recording-section">
+                        <div class="recording-visualizer" id="recording-visualizer">
+                            <canvas id="audio-canvas"></canvas>
+                        </div>
+                        <div class="recording-controls">
+                            <button id="start-recording" class="btn btn-primary">
+                                <i class="fas fa-microphone"></i> Start Recording
+                            </button>
+                            <button id="stop-recording" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop"></i> Stop Recording
+                            </button>
+                            <button id="play-recording" class="btn btn-secondary" disabled>
+                                <i class="fas fa-play"></i> Play Recording
+                            </button>
+                        </div>
+                        <audio id="recorded-audio" controls hidden></audio>
+                    </div>
+                </div>
+                
+                <div class="preview-area" id="speech-preview" hidden>
+                    <audio id="speech-preview-audio" controls></audio>
+                    <button id="analyze-speech" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Analyze Emotion
+                    </button>
+                </div>
+            </section>
+
+            <!-- Text Emotion Detection Section -->
+            <section id="text-section" class="detection-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-keyboard"></i> Text Emotion Detection</h2>
+                    <p>Type or paste text to detect emotions from written content</p>
+                </div>
+                
+                <div class="input-area">
+                    <div class="text-input-container">
+                        <textarea id="text-input" placeholder="Type your text here or paste from clipboard..." maxlength="1000"></textarea>
+                        <div class="text-controls">
+                            <span class="char-count">0/1000</span>
+                            <button id="clear-text" class="btn btn-secondary">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                            <button id="analyze-text" class="btn btn-primary">
+                                <i class="fas fa-search"></i> Analyze Emotion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-section" hidden>
+                <div class="section-header">
+                    <h2><i class="fas fa-chart-bar"></i> Emotion Analysis Results</h2>
+                </div>
+                
+                <div class="results-content">
+                    <div class="primary-result">
+                        <div class="emotion-display">
+                            <div class="emotion-icon" id="emotion-icon"></div>
+                            <div class="emotion-info">
+                                <h3 id="detected-emotion">Detected Emotion</h3>
+                                <div class="confidence-score">
+                                    <span>Confidence: </span>
+                                    <span id="confidence-value">0%</span>
+                                    <div class="confidence-bar">
+                                        <div class="confidence-fill" id="confidence-fill"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detailed-results">
+                        <h4>Emotion Probabilities</h4>
+                        <canvas id="emotion-chart"></canvas>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button id="save-result" class="btn btn-secondary">
+                            <i class="fas fa-save"></i> Save Result
+                        </button>
+                        <button id="try-again" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                        <a id="talk-to-ai" href="#" class="btn btn-primary" style="margin-left: 10px;">
+                            <i class="fas fa-robot"></i> Talk to AI
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Analyzing emotion...</p>
+            </div>
+        </div>
+
+        <!-- Error Toast -->
+        <div id="error-toast" class="toast error-toast" style="display: none;">
+            <div class="toast-content">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="error-message"></span>
+            </div>
+            <button class="toast-close">&times;</button>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="success-toast" class="toast success-toast" style="display: none;">
+            <div class="toast-content">
+                <i class="fas fa-check-circle"></i>
+                <span id="success-message"></span>
+            </div>
+            <button class="toast-close">&times;</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

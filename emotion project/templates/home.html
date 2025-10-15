@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moodify - Intelligent Emotion Detection Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single+Ink:wght@100..900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Playwrite+US+Modern:wght@100..400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ------------------------------
+           Moodify Analytics Dashboard
+        --------------------------------*/
+
+        :root {
+            --bg-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --text-color: #222;
+            --accent: #5a67d8;
+            --accent-light: #c3c8f5;
+            --success: #38b2ac;
+            --warning: #f6ad55;
+            --danger: #e53e3e;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* ------------------------------
+           Container & Header
+        --------------------------------*/
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-content h1 {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .header-content p {
+            color: #555;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #434190;
+        }
+
+        .btn.btn-secondary {
+            background-color: #718096;
+        }
+
+        .btn.btn-secondary:hover {
+            background-color: #4a5568;
+        }
+
+        /* ------------------------------
+           Summary Cards
+        --------------------------------*/
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 10px var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-right: 15px;
+        }
+
+        .card-content h3 {
+            font-size: 1rem;
+            margin: 0;
+            color: #555;
+        }
+
+        .card-content .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .card-content .stat-text {
+            font-size: 1.3rem;
+            color: var(--success);
+        }
+
+        /* ------------------------------
+           Charts Section
+        --------------------------------*/
+
+        .charts-section {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .chart-container h3 {
+            margin-bottom: 20px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ------------------------------
+           Recent Predictions Table
+        --------------------------------*/
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 10px var(--shadow);
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .predictions-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .predictions-table thead {
+            background-color: var(--accent);
+            color: #fff;
+        }
+
+        .predictions-table th,
+        .predictions-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .predictions-table tbody tr:hover {
+            background-color: var(--accent-light);
+            transition: background 0.2s ease;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #777;
+            padding: 20px 0;
+        }
+
+        /* ------------------------------
+           Type & Emotion Tags
+        --------------------------------*/
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #fff;
+            font-size: 0.85rem;
+        }
+
+        .type-face {
+            background-color: var(--success);
+        }
+
+        .type-speech {
+            background-color: var(--accent);
+        }
+
+        .type-text {
+            background-color: var(--warning);
+        }
+
+        .emotion-tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 500;
+            text-transform: capitalize;
+            font-size: 0.9rem;
+        }
+
+        .emotion-happy { background-color: #f6ad55; }
+        .emotion-sad { background-color: #63b3ed; }
+        .emotion-angry { background-color: #e53e3e; }
+        .emotion-surprise { background-color: #9f7aea; }
+        .emotion-neutral { background-color: #718096; }
+        .emotion-fear { background-color: #48bb78; }
+        .emotion-disgust { background-color: #d69e2e; }
+
+        /* ------------------------------
+           Confidence Progress
+        --------------------------------*/
+
+        .confidence-display {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .confidence-display span {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .mini-progress {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .mini-progress-fill {
+            height: 100%;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        /* ------------------------------
+           Responsive Design
+        --------------------------------*/
+
+        @media (max-width: 768px) {
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            .header-content h1 {
+                font-size: 1.6rem;
+            }
+            .predictions-table th, .predictions-table td {
+                font-size: 0.85rem;
+                padding: 10px;
+            }
+        }
+
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            width: 100%;
+            height: 100%;
+        }
+
+        .main{
+          width: 100%;height: 100%;
+        }
+        /* navbar */
+        .header {
+          background: linear-gradient(270deg, #ff758c, #ff7eb3, #6a11cb, #2575fc, #ff6b6b, #4ecdc4);
+          background-size: 1200% 1200%;
+          animation: moodflow 15s ease infinite;
+          color: white;
+          padding: 20px 0;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(255,255,255,0.1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+          0% { left: -100%; }
+          100% { left: 100%; }
+        }
+
+        @keyframes moodflow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        .header-content {
+          /* text-align: center; */
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .combine{
+            padding-left: 2em;
+            cursor: pointer;
+        }
+        .header h1 {
+          font-size: 1.4rem;
+          letter-spacing: 2px;
+          font-family: "Playwrite US Modern";
+          color: #ffffff;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.5);
+          animation: glow 2s ease-in-out infinite alternate;
+          position: relative;
+          z-index: 2;
+          font-weight: bold;
+        }
+
+        @keyframes glow {
+          from { text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(255,255,255,0.5); }
+          to { text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 20px rgba(255,255,255,0.8); }
+        }
+        .header p{
+            font-family: "Playwrite US Modern";
+            padding-left: 2em;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+            font-weight: 500;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav {
+          display: flex;
+          justify-content: center;
+          gap: 35px;
+          padding-right: 2em;
+        margin-top: 20px;
+        font-family: "Shadows Into Light", cursive;
+        }
+
+        .nav-item {
+          color: #ffffff;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: large;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          text-align: center;
+          position: relative;
+          padding: 10px 20px;
+          border-radius: 25px;
+          overflow: hidden;
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+          z-index: 2;
+        }
+
+        .nav-item::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transition: left 0.5s;
+        }
+
+        .nav-item:hover::before {
+          left: 100%;
+        }
+
+        .nav-item:hover {
+          transform: scale(1.1) translateY(-2px);
+          color: #ffffff;
+          background: rgba(255, 255, 255, 0.25);
+          box-shadow: 0 8px 25px rgba(255,255,255,0.3);
+          border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+
+
+        /*  MODERN HERO */
+        .hero-modern {
+          position: relative;
+          height: 100vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          overflow: hidden;
+          font-family: 'Poppins', sans-serif;
+          color: #fff;
+          text-align: center;
+        }
+
+
+        .hero-modern::before {
+          content: "";
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: linear-gradient(270deg, #6a1b9a, #512da8, #311b92, #00c6ff);
+          background-size: 800% 800%;
+          animation: gradientShift 12s ease infinite;
+          z-index: 0;
+        }
+
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /*  emojis */
+        .floating-emojis span {
+          position: absolute;
+          font-size: 2.5rem;
+          opacity: 0.9;
+          animation: float 8s infinite ease-in-out;
+          filter: drop-shadow(0 0 10px rgba(255,255,255,0.5));
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .floating-emojis span:hover {
+          transform: scale(1.3) rotate(360deg);
+          filter: drop-shadow(0 0 20px rgba(255,255,255,0.8));
+        }
+
+        .floating-emojis span:nth-child(1) { top: 10%; left: 15%; animation-delay: 0s; }
+        .floating-emojis span:nth-child(2) { top: 20%; right: 10%; animation-delay: 1.5s; }
+        .floating-emojis span:nth-child(3) { bottom: 15%; left: 20%; animation-delay: 3s; }
+        .floating-emojis span:nth-child(4) { bottom: 20%; right: 15%; animation-delay: 4.5s; }
+        .floating-emojis span:nth-child(5) { top: 50%; left: 45%; animation-delay: 2s; }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.9; }
+          25% { transform: translateY(-15px) rotate(5deg); opacity: 1; }
+          50% { transform: translateY(-25px) rotate(0deg); opacity: 1; }
+          75% { transform: translateY(-15px) rotate(-5deg); opacity: 1; }
+        }
+
+        /*card */
+        .hero-card {
+          position: relative;
+          z-index: 2;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(20px);
+          padding: 60px 70px;
+          border-radius: 30px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 
+                      0 0 0 1px rgba(255, 255, 255, 0.1),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          max-width: 700px;
+          animation: fadeIn 1.5s ease-in-out, pulse 4s ease-in-out infinite;
+          border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 
+                           0 0 0 1px rgba(255, 255, 255, 0.1),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.2); }
+          50% { box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 
+                           0 0 20px rgba(255, 255, 255, 0.2),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+        }
+
+        .hero-card h1 {
+          font-size: 3rem;
+          margin-bottom: 10px;
+          color: #ffffff;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+          font-weight: bold;
+        }
+
+        .hero-card h2 {
+          font-weight: 500;
+          font-size: 1.5rem;
+          color: #ffffff;
+          margin-bottom: 20px;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .hero-card p {
+          color: #ffffff;
+          font-size: 1rem;
+          line-height: 1.6;
+          margin-bottom: 30px;
+          text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+        }
+
+        .hero-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        }
+
+        .btn {
+          text-decoration: none;
+          padding: 12px 24px;
+          border-radius: 30px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn.primary {
+          background: linear-gradient(45deg, #ff80ab, #ff6b9d, #ff4081);
+          color: #fff;
+          box-shadow: 0 8px 25px rgba(255, 128, 171, 0.4), 
+                      0 0 0 1px rgba(255, 255, 255, 0.1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .btn.primary::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+          transition: left 0.6s;
+        }
+
+        .btn.primary:hover::before {
+          left: 100%;
+        }
+
+        .btn.primary:hover {
+          background: linear-gradient(45deg, #f50057, #e91e63, #c2185b);
+          transform: scale(1.1) translateY(-3px);
+          box-shadow: 0 15px 35px rgba(245, 0, 87, 0.6), 
+                      0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn.secondary {
+          background: rgba(255, 255, 255, 0.2);
+          color: #fff;
+        }
+
+        .btn.secondary:hover {
+          background: rgba(255, 255, 255, 0.35);
+          transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+
+        /*  HOME  */
+        .home {
+          height: 100vh;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          background: linear-gradient(135deg, rgb(224, 135, 135),rgb(252, 252, 149));
+        }
+        .home:hover{
+            background: linear-gradient(135deg,rgb(252, 252, 149), rgb(224, 135, 135));
+        }
+
+        .home-content {
+          max-width: 900px;
+          animation: fadeIn 1.2s ease-in-out;
+        }
+
+        /* Headings */
+        .home h1 {
+          font-size: 2.8rem;
+          margin-bottom: 10px;
+        }
+
+        .home h1 span {
+          color: #6a1b9a;
+        }
+
+        .home h3 {
+          font-size: 2rem;
+          font-weight: 400;
+          color: #5e35b1;
+          margin-bottom: 25px;
+        }
+
+        /* Description */
+        .home p {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #555;
+          line-height: 1.7;
+          margin-bottom: 40px;
+        }
+
+        /* Feature Grid */
+        .mood-modes {
+          display: flex;
+          justify-content: center;
+          flex-wrap: wrap;
+          gap: 25px;
+          margin-bottom: 40px;
+        }
+
+        .mode-card {
+          background: #fff;
+          border-radius: 12px;
+          /* font-size: 10em; */
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          width: 250px;
+          padding: 20px;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .mode-card i {
+          font-size: 2rem;
+          color: #6a1b9a;
+          margin-bottom: 10px;
+        }
+
+        .mode-card h4 {
+          font-size: 1.1rem;
+          margin-bottom: 10px;
+          color: #4a148c;
+        }
+
+        .mode-card p {
+          font-size: 0.9rem;
+          color: #666;
+        }
+
+        .mode-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Buttons */
+        .home-buttons {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+        }
+
+        .btn {
+          text-decoration: none;
+          padding: 12px 28px;
+          border-radius: 8px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn.primary {
+          background: #6a1b9a;
+          color: #fff;
+        }
+
+        .btn.primary:hover {
+          background: #4a148c;
+          transform: scale(1.05);
+        }
+
+        .btn.secondary {
+          background: #d1c4e9;
+          color: #4a148c;
+        }
+
+        .btn.secondary:hover {
+          background: #b39ddb;
+          transform: scale(1.05);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Smooth Scroll */
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .home {
+            padding: 0 6%;
+          }
+
+          .home h1 {
+            font-size: 2rem;
+          }
+
+          .mood-modes {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .mode-card {
+            width: 90%;
+          }
+
+          .home-buttons {
+            flex-direction: column;
+          }
+        }
+
+        /* FEATURES SECTION*/
+        .features {
+          min-height: 100vh;                   /* Full viewport height */
+          background: linear-gradient(135deg, #73a9cf, #e48ad3);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          padding: 80px 10%;
+          color: #4a148c;
+        }
+        .features:hover{
+          background: linear-gradient(135deg,#e48ad3,#73a9cf);
+
+        }
+
+        .features-content {
+          max-width: 1100px;
+          animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .features h2 {
+          font-size: 2.2rem;
+          margin-bottom: 15px;
+        }
+
+        .features h2 span {
+          color: #6a1b9a;
+        }
+
+        .features p {
+          color: #555;
+          max-width: 800px;
+          margin: 0 auto 50px;
+          line-height: 1.6;
+          font-size: 1.05rem;
+        }
+
+        /* Grid Layout */
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 30px;
+        }
+
+        /* Feature Card */
+        .feature-card {
+          background: #fff;
+          border-radius: 15px;
+          padding: 25px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Icons */
+        .feature-card i {
+          font-size: 2.3rem;
+          color: #6a1b9a;
+          margin-bottom: 12px;
+          transition: color 0.3s ease;
+        }
+
+        .feature-card:hover i {
+          color: #4a148c;
+        }
+
+        /* Titles & Text */
+        .feature-card h3 {
+          font-size: 1.2rem;
+          margin-bottom: 10px;
+          color: #4a148c;
+        }
+
+        .feature-card p {
+          font-size: 0.95rem;
+          color: #555;
+          line-height: 1.5;
+        }
+
+        /* Smooth Scroll */
+        html {
+          scroll-behavior: smooth;
+        }
+
+        /* Fade Animation */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .features {
+            padding: 60px 6%;
+          }
+
+          .features h2 {
+            font-size: 1.8rem;
+          }
+
+          .feature-card {
+            padding: 20px;
+          }
+        }
+
+        /*  HOW IT WORKS SECTION */
+        .how {
+          min-height: 100vh;
+          background: linear-gradient(135deg,#f4a346,rgb(223, 222, 222),#96f55f );
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 80px 10%;
+          color: #4a148c;
+          text-align: center;
+        }
+
+        .how:hover{
+
+          background: linear-gradient(135deg, #ade88b,rgb(223, 222, 222), #e5ae70);
+        }
+        .how-content {
+          max-width: 1100px;
+          animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .how h2 {
+          font-size: 2.2rem;
+          margin-bottom: 15px;
+        }
+
+        .how p {
+          max-width: 800px;
+          margin: 0 auto 50px;
+          color: #555;
+          font-size: 1.05rem;
+          line-height: 1.6;
+        }
+
+        /* Step Cards Grid */
+        .how-steps {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 30px;
+          justify-items: center;
+        }
+
+        /* Individual Card */
+        .how-card {
+          background: #fff;
+          border-radius: 15px;
+          padding: 30px 20px;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          position: relative;
+          width: 100%;
+          max-width: 250px;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .how-card:hover {
+          transform: translateY(-10px);
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Step Number Bubble */
+        .step-number {
+          position: absolute;
+          top: -18px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #6a1b9a;
+          color: #fff;
+          font-weight: bold;
+          font-size: 1.1rem;
+          border-radius: 50%;
+          width: 35px;
+          height: 35px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 8px rgba(106, 27, 154, 0.5);
+        }
+
+        /* Icons */
+        .how-card i {
+          font-size: 2rem;
+          color: #6a1b9a;
+          margin-top: 10px;
+          margin-bottom: 15px;
+          transition: color 0.3s ease;
+        }
+
+        .how-card:hover i {
+          color: #4a148c;
+        }
+
+        /* Titles & Paragraphs */
+        .how-card h3 {
+          margin-bottom: 10px;
+          font-size: 1.2rem;
+          color: #4a148c;
+        }
+
+        .how-card p {
+          font-size: 0.95rem;
+          color: #555;
+          line-height: 1.5;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+          .how {
+            padding: 60px 6%;
+          }
+
+          .how h2 {
+            font-size: 1.8rem;
+          }
+
+          .how-card {
+            max-width: 300px;
+          }
+
+          .step-number {
+            top: -15px;
+          }
+        }
+
+        /* ===== FEEDBACK SECTION ===== */
+        .feedback {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #ede7f6, #f3e5f5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 80px 10%;
+          text-align: center;
+          color: #4a148c;
+        }
+
+        .feedback-content {
+          max-width: 900px;
+          width: 100%;
+          animation: fadeIn 1.2s ease-in-out;
+        }
+
+        /* Title and Paragraph */
+        .feedback h2 {
+          font-size: 2.2rem;
+          margin-bottom: 15px;
+        }
+
+        .feedback p {
+          color: #555;
+          max-width: 750px;
+          margin: 0 auto 40px;
+          line-height: 1.6;
+          font-size: 1.05rem;
+        }
+
+        /* ===== Feedback Form ===== */
+        .feedback-form {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          align-items: center;
+          margin-bottom: 50px;
+        }
+
+        .form-group {
+          width: 100%;
+          max-width: 600px;
+        }
+
+        .feedback-form input,
+        .feedback-form textarea {
+          width: 100%;
+          padding: 12px 15px;
+          border: 1.5px solid #b39ddb;
+          border-radius: 10px;
+          font-family: inherit;
+          font-size: 1rem;
+          outline: none;
+          transition: 0.3s ease;
+          background: #fff;
+        }
+
+        .feedback-form input:focus,
+        .feedback-form textarea:focus {
+          border-color: #6a1b9a;
+          box-shadow: 0 0 8px rgba(106, 27, 154, 0.3);
+        }
+
+        .feedback-form button {
+          margin-top: 15px;
+          padding: 12px 28px;
+          background: #6a1b9a;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: all 0.3s ease;
+        }
+
+        .feedback-form button:hover {
+          background: #4a148c;
+          transform: scale(1.05);
+        }
+
+        /* Divider */
+        .divider {
+          width: 100px;
+          height: 3px;
+          background: #6a1b9a;
+          margin: 30px auto;
+          border-radius: 5px;
+        }
+
+        /* ===== Creator Info ===== */
+        .creator-info {
+          text-align: center;
+          color: #4a148c;
+          font-weight: 900;
+          /* font-size: 10em; */
+        }
+
+        .creator-info h3 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+
+        .creator-info p {
+          color: #555;
+          font-size: 1.2rem;
+          line-height: 1.6;
+          max-width: 700px;
+          margin: 0 auto 10px;
+        }
+        .owner{
+          font-family:  sans-serif;
+        }
+
+        /* Social Links */
+        .social-links {
+          margin-top: 20px;
+        }
+
+        .social-links a {
+          color: #6a1b9a;
+          font-size: 1.5rem;
+          margin: 0 10px;
+          transition: 0.3s ease;
+        }
+
+        .social-links a:hover {
+          color: #4a148c;
+          transform: scale(1.2);
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .feedback {
+            padding: 60px 6%;
+          }
+
+          .feedback h2 {
+            font-size: 1.8rem;
+          }
+
+          .feedback-form button {
+            width: 90%;
+          }
+        }
+
+
+
+
+        /* ===== FOOTER ===== */
+        .footer {
+          background: linear-gradient(135deg,rgb(223, 146, 146), rgb(90, 91, 132));
+          color: #fff;
+          padding: 50px 10% 20px;
+          text-align: left;
+        }
+
+        .footer-container {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 40px;
+          margin-bottom: 30px;
+        }
+
+        /* Footer About */
+        .footer-about {
+          flex: 1 1 300px;
+        }
+
+        .footer-about h3 {
+          font-size: 1.5rem;
+          margin-bottom: 10px;
+        }
+
+        .footer-about p {
+          color: #e0e0e0;
+          font-size: 0.95rem;
+          line-height: 1.6;
+        }
+
+        /* Footer Links */
+        .footer-links {
+          flex: 1 1 300px;
+        }
+
+        .footer-links h4 {
+          font-size: 1.1rem;
+          margin-bottom: 10px;
+          color: #ffeb3b;
+        }
+
+        .footer-links ul {
+          list-style: none;
+        }
+
+        .footer-links li {
+          margin-bottom: 8px;
+        }
+
+        .footer-links a {
+          color: #fff;
+          text-decoration: none;
+          transition: 0.3s;
+        }
+
+        .footer-links a:hover {
+          color: #ffeb3b; 
+        }
+
+        /* Footer Contact */
+        .footer-contact {
+          flex: 1 1 250px;
+        }
+
+        .footer-contact h4 {
+          font-size: 1.1rem;
+          margin-bottom: 10px;
+          color: #ffeb3b;
+        }
+
+        .footer-contact p {
+          margin-bottom: 8px;
+          font-size: 0.95rem;
+        }
+
+        .footer-social a {
+          color: #fff;
+          margin-right: 10px;
+          font-size: 1.3rem;
+          transition: 0.3s;
+        }
+
+        .footer-social a:hover {
+          color: #ffeb3b;
+        }
+
+        /* Footer Bottom */
+        .footer-bottom {
+          border-top: 1px solid rgba(255,255,255,0.3);
+          text-align: center;
+          padding-top: 15px;
+        }
+
+        .footer-bottom p {
+          font-size: 0.9rem;
+          color: #e0e0e0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+          .footer-container {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .footer-about,
+          .footer-links,
+          .footer-contact {
+            flex: 1 1 100%;
+          }
+
+          .footer-social {
+            margin-top: 10px;
+          }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+
+        <header class="header">
+            <div class="header-content">
+
+                <div href=".hero-modern" class="combine">
+                    <h1 href=""><i class="fas fa-brain"></i>Moodify</h1>
+                    <p>-Intelligent Mood Detection System</p>
+                </div>
+
+                <nav class="nav">
+                    <a href="#home" class="nav-item "><i class="fas fa-home"></i>Home</a>
+                    <a href="#features" class="nav-item"><i class="fas fa-lightbulb"></i> Features</a>
+                    <a href="#how" class="nav-item"><i class="fas fa-cogs"></i> How It Works</a>
+                    <a href="#feedback" class="nav-item"><i class="fas fa-comment-dots"></i> Feedback</a>
+                    {% if session.user_id %}
+                        <a href="/app" class="nav-item"><i class="fas fa-brain"></i> App</a>
+                        <a href="/chat" class="nav-item"><i class="fas fa-robot"></i> AI Chat</a>
+                        <a href="/logout" class="nav-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    {% else %}
+                        <a href="/login" class="nav-item"><i class="fas fa-sign-in-alt"></i> Login</a>
+                        <a href="/signup" class="nav-item"><i class="fas fa-user-plus"></i> Sign Up</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </header>
+
+
+        <!-- our hero section -->
+        <section class="hero-modern">
+            <div class="overlay"></div>
+
+            <div class="floating-emojis">
+                <span>😊</span>
+                <span>😢</span>
+                <span>😡</span>
+                <span>😍</span>
+                <span>😐</span>
+            </div>
+
+            <div class="hero-card">
+                <h1><i class="fas fa-brain"></i> Moodify</h1>
+                <h2>AI that Understands Emotions</h2>
+                <p>
+                    Discover how intelligent emotion detection blends
+                    <strong>Face, Speech, and Text</strong> to sense real human moods.
+                </p>
+
+                <div class="hero-buttons">
+                    {% if session.user_id %}
+                        <a href="/app" target="_blank" class="btn primary"><i class="fas fa-smile"></i> Start Detection</a>
+                    {% else %}
+                        <a href="/login" class="btn primary"><i class="fas fa-sign-in-alt"></i> Login to Start</a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+
+    <!-- home section -->
+    <section id="home" class="section home">
+        <div class="home-content">
+
+            <!-- Main Heading -->
+            <h1><i class="fas fa-brain"></i> Welcome to <span>Moodify</span></h1>
+            <h3>AI that understands your emotions — anytime, anywhere.</h3>
+
+            <!-- Description -->
+            <p>
+                Moodify is an intelligent mood detection system designed to analyze your <strong>facial
+                    expressions</strong>,
+                <strong>voice tone</strong>, and <strong>text input</strong> to understand how you feel.
+                It bridges the gap between humans and technology by adding <em>emotional awareness</em> to digital
+                communication.
+            </p>
+
+            <!-- Mini Feature Highlights -->
+            <div class="mood-modes">
+                <div class="mode-card">
+                    <i class="fas fa-camera"></i>
+                    <h4>Face Detection</h4>
+                    <p>Detect emotions in real time using your webcam and facial expressions.</p>
+                </div>
+                <div class="mode-card">
+                    <i class="fas fa-microphone"></i>
+                    <h4>Speech Analysis</h4>
+                    <p>Analyze voice tone and pitch to understand emotional cues.</p>
+                </div>
+                <div class="mode-card">
+                    <i class="fas fa-keyboard"></i>
+                    <h4>Text Sentiment</h4>
+                    <p>Detect emotion from text messages, chats, and posts instantly.</p>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="home-buttons">
+                <a href="#features" class="btn primary"><i class="fas fa-lightbulb"></i> Explore Features</a>
+                <a href="#how" class="btn secondary"><i class="fas fa-cogs"></i> Learn How It Works</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- our feacture section -->
+    <section id="features" class="section features">
+        <div class="features-content">
+            <h2><i class="fas fa-lightbulb"></i> Key Features of <span>Moodify</span></h2>
+            <p>
+                Moodify combines artificial intelligence with emotional awareness to create a personalized,
+                mood-sensitive experience. Each feature is designed to help users understand, manage, and
+                enhance their emotional well-being through intelligent analysis.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Multi-Modal Emotion Detection</h3>
+                    <p>Analyzes <strong>facial expressions</strong>, <strong>voice tone</strong>, and <strong>text
+                            input</strong> for accurate mood recognition.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Real-Time Mood Insights</h3>
+                    <p>Instantly classifies emotions like <em>Happy</em>, <em>Sad</em>, <em>Angry</em>, or <em>Calm</em>
+                        with live analysis.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-music"></i>
+                    <h3>Smart Recommendations</h3>
+                    <p>Suggests <strong>songs, quotes, and GIFs</strong> that match your current mood — powered by APIs.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Mood Tracker</h3>
+                    <p>Visualize your <strong>emotional history</strong> with charts and timelines to track mood
+                        patterns.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-bell"></i>
+                    <h3>Personalized Notifications</h3>
+                    <p>Receive <strong>motivational alerts</strong> and emotional health reminders based on your recent
+                        moods.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- our  HOW IT WORKS SECTION  -->
+    <section id="how" class="section how">
+        <div class="how-content">
+            <h2><i class="fas fa-cogs"></i> How It Works</h2>
+            <p>
+                Moodify transforms simple inputs — like your face, voice, or words — into deep emotional insights.
+                Here's how our AI-powered system understands and responds to your mood step by step:
+            </p>
+
+            <div class="how-steps">
+                <div class="how-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-camera"></i>
+                    <h3>Select Mode</h3>
+                    <p>Choose your preferred detection mode: <strong>Face</strong> 🎥, <strong>Voice</strong> 🎙️, or
+                        <strong>Text</strong> 💬.
+                    </p>
+                </div>
+
+                <div class="how-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-brain"></i>
+                    <h3>AI Analysis</h3>
+                    <p>Our AI model analyzes the data using <strong>Deep Learning</strong> and <strong>Natural Language
+                            Processing</strong>.</p>
+                </div>
+
+                <div class="how-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-heart"></i>
+                    <h3>Mood Classification</h3>
+                    <p>The system identifies your mood: 😊 Happy, 😢 Sad, 😠 Angry, 😌 Calm, or 😟 Anxious.</p>
+                </div>
+
+                <div class="how-card">
+                    <div class="step-number">4</div>
+                    <i class="fas fa-music"></i>
+                    <h3>Smart Response</h3>
+                    <p>Instantly suggests mood-based <strong>messages</strong>, <strong>music</strong>, or
+                        <strong>GIFs</strong> to match your emotions.
+                    </p>
+                </div>
+
+                <div class="how-card">
+                    <div class="step-number">5</div>
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Track History</h3>
+                    <p>All results are saved to your <strong>Mood History</strong> for future tracking and emotional
+                        insights.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEEDBACK & ABOUT SECTION -->
+    <section id="feedback" class="section feedback">
+        <div class="feedback-content">
+            <h2><i class="fas fa-comment-dots"></i> Feedback & About</h2>
+            <p>
+                We'd love to hear your thoughts about <strong>Moodify</strong>!
+                Your suggestions help us improve and make emotional technology more human-centered.
+            </p>
+
+            <!-- Feedback Form -->
+            <form class="feedback-form">
+                <div class="form-group">
+                    <input type="text" placeholder="Your Name (optional)" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" placeholder="Your Email (optional)" required>
+                </div>
+                <div class="form-group">
+                    <textarea rows="5" placeholder="Write your feedback or experience..."></textarea>
+                </div>
+                <button type="submit" class="btn primary"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider"></div>
+
+            <!-- Creator Info -->
+            <div class="creator-info">
+                <h3>👨‍💻 Developed By</h3>
+                <p class="owner"><strong>Team Moodify:</strong> Onkar Hiremath, Balu Nandiwale, Manas Dhotre, Onkar
+                    Dhepe, Varun Junja
+                </p>
+                <p>Under the guidance of <strong>Prof. Mane Madam</strong><br>
+                    <em>Brahmdevdada Mane Institute of Technology, Solapur</em>
+                </p>
+
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- our FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+
+            <div class="footer-about">
+                <h3><i class="fas fa-brain"></i> Moodify</h3>
+                <p>AI-powered mood detection system that connects technology with emotion. Understand moods, share
+                    empathy, and stay emotionally aware with Moodify.</p>
+            </div>
+
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#how">How It Works</a></li>
+                    <li><a href="#history">Mood History</a></li>
+                    <li><a href="#feedback">Feedback</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> moodify.team@gmail.com</p>
+                <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+                <div class="footer-social">
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2025 Moodify | Developed by <strong>Team Moodify</strong> – Under Guidance of Prof. Mane Madam</p>
+        </div>
+    </footer>
+
+    <script>
+        // Simple smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add simple fade-in animation for cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.feature-card, .mode-card, .how-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+
+</body>
+</html>
